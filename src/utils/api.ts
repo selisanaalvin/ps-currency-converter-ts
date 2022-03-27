@@ -1,18 +1,18 @@
 // https://exchangeratesapi.io/
-const BASE_URL = 'http://api.exchangeratesapi.io/v1';
-const API_KEY = 'REPLACE_WITH_YOUR_API_KEY'
+const BASE_URL = "http://api.exchangeratesapi.io/v1";
+const API_KEY = "60311d071ec8288bd07b9f5905160956";
 
 // TODO: what is the response type in the Promise? We should avoid using 'any'
 type API = (params: {
-  endpoint: string,
+  endpoint: string;
   params: {
-    base?: string,
-  },
+    base?: string;
+  };
 }) => Promise<any>;
 
 const api: API = ({ endpoint, params = {} }) => {
   const searchParams = new URLSearchParams(params);
-  searchParams.append('access_key', API_KEY);
+  searchParams.append("access_key", API_KEY);
   const queryString = searchParams.toString();
 
   return fetch(`${BASE_URL}${endpoint}?${queryString}`);
@@ -20,7 +20,7 @@ const api: API = ({ endpoint, params = {} }) => {
 
 export const fetchRates = async (baseCurrency: string) => {
   try {
-    const response = await api({ endpoint: '/latest', params: { base: baseCurrency } });
+    const response = await api({ endpoint: "/latest", params: { base: baseCurrency } });
     const responseText = await response.text();
     const { rates, error } = JSON.parse(responseText);
 
@@ -29,10 +29,30 @@ export const fetchRates = async (baseCurrency: string) => {
     }
 
     if (!rates || !Object.keys(rates).length) {
-      throw new Error('Could not fetch rates.');
+      throw new Error("Could not fetch rates.");
     }
 
     return rates;
+  } catch (errorResponse) {
+    throw errorResponse;
+  }
+};
+
+export const getSymbol = async () => {
+  try {
+    const response = await api({ endpoint: "/symbols", params: {} });
+    const responseText = await response.text();
+    const { symbols, error } = JSON.parse(responseText);
+
+    if (error) {
+      throw new Error(error);
+    }
+
+    if (!symbols || !Object.keys(symbols).length) {
+      throw new Error("Could not fetch rates.");
+    }
+
+    return symbols;
   } catch (errorResponse) {
     throw errorResponse;
   }
